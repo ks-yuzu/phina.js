@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+phina.namespace(function() {
+
+<span id='phina-display-Layer'>  /**
+</span>   * @class phina.display.Layer
+   * @extends phina.display.DisplayElement
+   */
+  phina.define(&#39;phina.display.Layer&#39;, {
+    superClass: &#39;phina.display.DisplayElement&#39;,
+
+<span id='phina-display-Layer-property-renderChildBySelf'>    /** 子供を 自分の CanvasRenderer で描画するか */
+</span>    renderChildBySelf: true,
+
+    init: function(options) {
+      options = ({}).$safe(options, {
+        width: 640,
+        height: 960,
+      });
+      this.superInit(options);
+      this.width = options.width;
+      this.height = options.height;
+      this.gridX = phina.util.Grid(options.width, 16);
+      this.gridY = phina.util.Grid(options.height, 16);
+    },
+
+    draw: function(canvas) {
+      if (!this.domElement) return ;
+
+      var image = this.domElement;
+      canvas.context.drawImage(image,
+        0, 0, image.width, image.height,
+        -this.width*this.originX, -this.height*this.originY, this.width, this.height
+        );
+    },
+  });
+});
+
+
+phina.namespace(function() {
+
+<span id='phina-display-CanvasLayer'>  /**
+</span>   * @class phina.display.CanvasLayer
+   * @extends phina.display.Layer
+   */
+  phina.define(&#39;phina.display.CanvasLayer&#39;, {
+    superClass: &#39;phina.display.Layer&#39;,
+
+    init: function(options) {
+      this.superInit(options);
+      this.canvas = phina.graphics.Canvas();
+      this.canvas.width  = this.width;
+      this.canvas.height = this.height;
+
+      this.renderer = phina.display.CanvasRenderer(this.canvas);
+      this.domElement = this.canvas.domElement;
+
+      this.on(&#39;enterframe&#39;, function() {
+        var temp = this._worldMatrix;
+        this._worldMatrix = null;
+        this.renderer.render(this);
+        this._worldMatrix = temp;
+      });
+    },
+
+    draw: function(canvas) {
+      var image = this.domElement;
+      canvas.context.drawImage(image,
+        0, 0, image.width, image.height,
+        -this.width*this.originX, -this.height*this.originY, this.width, this.height
+        );
+    },
+  });
+});
+
+phina.namespace(function() {
+
+<span id='phina-display-ThreeLayer'>  /**
+</span>   * @class phina.display.ThreeLayer
+   * @extends phina.display.Layer
+   */
+  phina.define(&#39;phina.display.ThreeLayer&#39;, {
+    superClass: &#39;phina.display.Layer&#39;,
+
+    scene: null,
+    camera: null,
+    light: null,
+    renderer: null,
+
+    init: function(options) {
+      this.superInit(options);
+
+      this.scene = new THREE.Scene();
+
+      this.camera = new THREE.PerspectiveCamera( 75, options.width / options.height, 1, 10000 );
+      this.camera.position.z = 1000;
+
+      this.light = new THREE.DirectionalLight( 0xffffff, 1 );
+      this.light.position.set( 1, 1, 1 ).normalize();
+      this.scene.add( this.light );
+
+      this.renderer = new THREE.WebGLRenderer();
+      this.renderer.setClearColor( 0xf0f0f0 );
+      this.renderer.setSize( options.width, options.height );
+
+      this.on(&#39;enterframe&#39;, function() {
+        this.renderer.render( this.scene, this.camera );
+      });
+
+      this.domElement = this.renderer.domElement;
+    },
+  });
+});
+
+</pre>
+</body>
+</html>

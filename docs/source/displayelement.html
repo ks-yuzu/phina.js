@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+phina.namespace(function() {
+
+<span id='phina-display-DisplayElement'>  /**
+</span>   * @class phina.display.DisplayElement
+   * @extends phina.app.Object2D
+   */
+  phina.define(&#39;phina.display.DisplayElement&#39;, {
+    superClass: &#39;phina.app.Object2D&#39;,
+
+<span id='phina-display-DisplayElement-property-visible'>    /** 表示フラグ */
+</span>    visible: true,
+<span id='phina-display-DisplayElement-property-alpha'>    /** アルファ */
+</span>    alpha: 1.0,
+<span id='phina-display-DisplayElement-property-blendMode'>    /** ブレンドモード */
+</span>    blendMode: &quot;source-over&quot;,
+
+<span id='phina-display-DisplayElement-property-renderChildBySelf'>    /** 子供を 自分のCanvasRenderer で描画するか */
+</span>    renderChildBySelf: false,
+
+    init: function(options) {
+      options = ({}).$safe(options || {}, phina.display.DisplayElement.defaults);
+
+      this.superInit(options);
+      this.alpha = options.alpha;
+      this.visible = options.visible;
+      this._worldAlpha = 1.0;
+    },
+
+<span id='phina-display-DisplayElement-method-setAlpha'>    /**
+</span>     * アルファ値をセット
+     */
+    setAlpha: function(alpha) {
+      this.alpha = alpha;
+      return this;
+    },
+
+<span id='phina-display-DisplayElement-method-setVisible'>    /**
+</span>     * 表示/非表示をセット
+     */
+    setVisible: function(flag) {
+      this.visible = flag;
+      return this;
+    },
+
+<span id='phina-display-DisplayElement-method-show'>    /**
+</span>     * 表示
+     */
+    show: function() {
+      this.visible = true;
+      return this;
+    },
+
+<span id='phina-display-DisplayElement-method-hide'>    /**
+</span>     * 非表示
+     */
+    hide: function() {
+      this.visible = false;
+      return this;
+    },
+
+<span id='phina-display-DisplayElement-method-_calcWorldAlpha'>    /**
+</span>     * @private
+     */
+    _calcWorldAlpha: function() {
+      if (this.alpha &lt; 0) {
+        this._worldAlpha = 0;
+        return;
+      }
+      if (!this.parent) {
+        this._worldAlpha = this.alpha;
+        return ;
+      }
+      else {
+        var worldAlpha = (this.parent._worldAlpha !== undefined) ? this.parent._worldAlpha : 1.0;
+        // alpha
+        this._worldAlpha = worldAlpha * this.alpha;
+      }
+    },
+
+    _static: {
+      defaults: {
+        alpha: 1.0,
+        visible: true,
+      },
+    }
+  });
+});
+
+</pre>
+</body>
+</html>

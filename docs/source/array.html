@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/*
+ * array.js
+ */
+
+;(function() {
+
+<span id='global-Array'>  /**
+</span>   * @class global.Array
+   * # 拡張した Array クラス
+   * Array クラスを拡張しています。
+   */
+
+
+<span id='global-Array-property-first'>  /**
+</span>   * @property {Object} first
+   * 最初の要素
+   *
+   * ### Example
+   *     arr = [6, 5, 2, 3, 1, 4];
+   *     arr.first; // =&gt; 6
+   */
+  Array.prototype.accessor(&quot;first&quot;, {
+      &quot;get&quot;: function()   { return this[0]; },
+      &quot;set&quot;: function(v)  { this[0] = v; }
+  });
+  
+<span id='global-Array-property-last'>  /**
+</span>   * @property {Object} last
+   * 最後の要素
+   *
+   * ### Example
+   *     arr = [6, 5, 2, 3, 1, 4];
+   *     arr.last; // =&gt; 4
+   */
+  Array.prototype.accessor(&quot;last&quot;, {
+    &quot;get&quot;: function()   { return this[this.length-1]; },
+    &quot;set&quot;: function(v)  { this[this.length-1] = v; }
+  });
+
+<span id='global-Array-method-equals'>  /**
+</span>   * @method equals
+   * 渡された配列と等しいかどうかをチェックします。
+   *
+   * 要素同士を === で比較します。要素に配列が含まれている場合は {@link #deepEquals} を使用してください。
+   *
+   * ### Example
+   *     arr1 = [6, 5, 2, 3, 1, 4];
+   *     arr1.equals([6, 5, 2, 3, 1, 4]);       // =&gt; true
+   *     arr2 = [6, 5, 2, [3, 1], 4];
+   *     arr2.equals([6, 5, 2, [3, 1], 4]);     // =&gt; false
+   *     arr2.deepEquals([6, 5, 2, [3, 1], 4]); // =&gt; true
+   *
+   * @param {Array} arr 比較する対象の配列
+   * @return {Boolean} チェックの結果
+   */
+  Array.prototype.$method(&quot;equals&quot;, function(arr) {
+    // 長さチェック
+    if (this.length !== arr.length) return false;
+    
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      if (this[i] !== arr[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+<span id='global-Array-method-deepEquals'>  /**
+</span>   * @method deepEquals
+   * ネストされている配列を含め、渡された配列と等しいかどうかをチェックします。
+   *
+   * ※equalsDeep にするか検討. (Java では deepEquals なのでとりあえず合わせとく)
+   *
+   * ### Example
+   *     arr = [6, 5, 2, [3, 1], 4];
+   *     arr.equals([6, 5, 2, [3, 1], 4]);     // =&gt; false
+   *     arr.deepEquals([6, 5, 2, [3, 1], 4]); // =&gt; true
+   *
+   * @param {Array} arr 比較する対象の配列
+   * @return {Boolean} チェックの結果
+   */
+  Array.prototype.$method(&quot;deepEquals&quot;, function(arr) {
+    // 長さチェック
+    if (this.length !== arr.length) return false;
+    
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      var result = (this[i].deepEquals) ? this[i].deepEquals(arr[i]) : (this[i] === arr[i]);
+      if (result === false) {
+        return false;
+      }
+    }
+    return true;
+  });
+
+<span id='global-Array-method-contains'>  /**
+</span>   * @method contains
+   * 指定した要素が配列に含まれているかをチェックします。
+   *
+   * 比較には厳密な同値（三重イコール演算子 === で使われるのと同じ方法）を用います。
+   *
+   * ### Example
+   *     arr = [6, 5, 2, 3, 1, 4];
+   *     arr.contains(3);     // =&gt; true
+   *     arr.contains(3, 4);  // =&gt; false
+   *     arr.contains(3, -4); // =&gt; true
+   *     arr.contains(&quot;6&quot;);   // =&gt; false
+   *
+   * @param {Object} item チェックするオブジェクト
+   * @param {Number} [fromIndex=0] 検索を始める位置。負数を指定した場合は末尾からのオフセットと見なします。
+   * @return {Boolean} チェックの結果
+   */
+  Array.prototype.$method(&quot;contains&quot;, function(item, fromIndex) {
+    return this.indexOf(item, fromIndex) != -1;
+  });
+  
+<span id='global-Array-method-at'>  /**
+</span>   * @method at
+   * 指定したインデックスの要素を返します（ループ・負数の指定可）。
+   *
+   * 添字が負数の場合は末尾からのオフセットとみなします。末尾の要素が -1 番目になります。  
+   * 添字の絶対値が Array.length 以上の場合はループします。
+   *
+   * ### Example
+   *     arr = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;, &#39;e&#39;, &#39;f&#39;];
+   *     arr.at(0);  // =&gt; &#39;a&#39;
+   *     arr.at(6);  // =&gt; &#39;a&#39;
+   *     arr.at(13); // =&gt; &#39;b&#39;
+   *     arr.at(-1); // =&gt; &#39;f&#39;
+   *     arr.at(-8); // =&gt; &#39;e&#39;
+   *
+   * @param {Number} index 添字
+   * @return {Object} 添字で指定された要素
+   */
+  Array.prototype.$method(&quot;at&quot;, function(i) {
+    i%=this.length;
+    i+=this.length;
+    i%=this.length;
+    return this[i];
+  });
+
+
+<span id='global-Array-method-find'>  /**
+</span>   * @method find
+   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初の要素を返します。
+   *
+   * どの要素もマッチしなければ undefined を返します。
+   *
+   * ### Example
+   *     arr = [&#39;foo&#39;, &#39;bar&#39;, &#39;hoge&#39;, &#39;fuga&#39;];
+   *     arr.find( function(elm) {
+   *       return elm.indexOf(&#39;a&#39;) &gt;= 0;
+   *     });
+   *     // =&gt; &#39;bar&#39;
+   *
+   * @param {Function} callback 各要素に対して実行するコールバック関数
+   * @param {Object} [self=this] callback 内で this として参照される値。デフォルトは呼び出し時の this。
+   * @return {Object} 条件にマッチした最初の要素、または undefined
+   */
+  Array.prototype.$method(&quot;find&quot;, function(fn, self) {
+    var target = null;
+
+    this.some(function(elm, i) {
+      if (fn.call(self, elm, i, this)) {
+        target = elm;
+        return true;
+      }
+    });
+
+    return target;
+  });
+
+<span id='global-Array-method-findIndex'>  /**
+</span>   * @method findIndex
+   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初のインデックスを返します。
+   *
+   * どの要素もマッチしなければ -1 を返します。
+   *
+   * ### Example
+   *     arr = [&#39;foo&#39;, &#39;bar&#39;, &#39;hoge&#39;, &#39;fuga&#39;];
+   *     arr.findIndex( function(elm) {
+   *       return elm.indexOf(&#39;a&#39;) &gt;= 0;
+   *     });
+   *     // =&gt; 1
+   *
+   * @param {Function} callback 各要素に対して実行するコールバック関数
+   * @param {Object} [self=this] callback 内で this として参照される値。デフォルトは呼び出し時の this。
+   * @return {Object} 条件にマッチした最初のインデックス、または -1
+   */
+  Array.prototype.$method(&quot;findIndex&quot;, function(fn, self) {
+    var target = -1;
+
+    this.some(function(elm, i) {
+      if (fn.call(self, elm, i, this)) {
+        target = i;
+        return true;
+      }
+    });
+
+    return target;
+  });
+  
+<span id='global-Array-method-swap'>  /**
+</span>   * @method swap
+   * @chainable
+   * a 番目の要素 と b 番目の要素を入れ替えます。
+   *
+   * ### Example
+   *     arr1 = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;];
+   *     arr2 = arr1.swap(0, 3); // =&gt; [&#39;d&#39;, &#39;b&#39;, &#39;c&#39;, &#39;a&#39;]
+   *     arr1 === arr2;          // =&gt; true
+   *
+   * @param {Number} a  インデックス
+   * @param {Number} b  インデックス
+   */
+  Array.prototype.$method(&quot;swap&quot;, function(a, b) {
+    var temp = this[a];
+    this[a] = this[b];
+    this[b] = temp;
+    
+    return this;
+  });
+
+<span id='global-Array-method-erase'>  /**
+</span>   * @method erase
+   * @chainable
+   * 指定したオブジェクトと一致した最初の要素を削除します。
+   *
+   * ### Example
+   *     arr1 = [&#39;a&#39;, &#39;b&#39;, &#39;b&#39;, &#39;c&#39;];
+   *     arr2 = arr1.erase(&#39;b&#39;); // =&gt; [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]
+   *     arr1 === arr2;          // =&gt; true
+   *
+   * @param {Object} elm 削除したいオブジェクト
+   */
+  Array.prototype.$method(&quot;erase&quot;, function(elm) {
+    var index  = this.indexOf(elm);
+    if (index &gt;= 0) {
+      this.splice(index, 1);
+    }
+    return this;
+  });
+  
+<span id='global-Array-method-eraseAll'>  /**
+</span>   * @method eraseAll
+   * @chainable
+   * 指定したオブジェクトと一致したすべての要素を削除します。
+   *
+   * ### Example
+   *     arr1 = [&#39;a&#39;, &#39;b&#39;, &#39;b&#39;, &#39;c&#39;];
+   *     arr2 = arr1.eraseAll(&#39;b&#39;); // =&gt; [&#39;a&#39;, &#39;c&#39;]
+   *     arr1 === arr2;             // =&gt; true
+   *
+   * @param {Object} elm 削除したいオブジェクト
+   */
+  Array.prototype.$method(&quot;eraseAll&quot;, function(elm) {
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      if (this[i] == elm) {
+        this.splice(i--, 1);
+      }
+    }
+    return this;
+  });
+  
+<span id='global-Array-method-eraseIf'>  /**
+</span>   * @method eraseIf
+   * @chainable
+   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）最初の要素を削除します。
+   *
+   * どの要素もマッチしなければ何も起きません。
+   *
+   * ### Example
+   *     arr = [&#39;foo&#39;, &#39;bar&#39;, &#39;hoge&#39;, &#39;fuga&#39;];
+   *     arr.eraseIf( function(elm) {
+   *       return elm.indexOf(&#39;o&#39;) &gt;= 0;
+   *     });
+   *     // =&gt; [&#39;bar&#39;, &#39;hoge&#39;, &#39;fuga&#39;]
+   *
+   * @param {Function} callback 各要素に対して実行するコールバック関数
+   */
+  Array.prototype.$method(&quot;eraseIf&quot;, function(fn) {
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      if ( fn(this[i], i, this) ) {
+        this.splice(i, 1);
+        break;
+      }
+    }
+    return this;
+  });
+  
+<span id='global-Array-method-eraseIfAll'>  /**
+</span>   * @method eraseIfAll
+   * @chainable
+   * 各要素を引数にして関数を実行し、その値が真となる（＝条件にマッチする）すべての要素を削除します。
+   *
+   * どの要素もマッチしなければ何も起きません。
+   *
+   * ### Example
+   *     arr = [&#39;foo&#39;, &#39;bar&#39;, &#39;hoge&#39;, &#39;fuga&#39;];
+   *     arr.eraseIfAll( function(elm) {
+   *       return elm.indexOf(&#39;o&#39;) &gt;= 0;
+   *     });
+   *     // =&gt; [&#39;bar&#39;, &#39;fuga&#39;]
+   *
+   * @param {Function} callback 各要素に対して実行するコールバック関数
+   */
+  Array.prototype.$method(&quot;eraseIfAll&quot;, function(fn) {
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      if ( fn(this[i], i, this) ) {
+        this.splice(i--, 1);
+        len--;
+      }
+    }
+    return this;
+  });
+  
+<span id='global-Array-method-random'>  /**
+</span>   * @method random
+   * 配列からランダムに1つ取り出した要素を返します。
+   *
+   * 取り出す範囲をインデックスで指定することもできます。  
+   * {@link #pickup}、{@link #lot} と同じです。  
+   *
+   * ### Example
+   *     arr = [&#39;foo&#39;, &#39;bar&#39;, &#39;hoge&#39;, &#39;fuga&#39;];
+   *     arr.random(2, 3);  // =&gt; &#39;hoge&#39; または &#39;fuga&#39;
+   *
+   * @param {Number} [min=0] インデックスの下限
+   * @param {Number} [max=配列の最大インデックス] インデックスの上限
+   * @return {Object} ランダムに1つ取り出した要素
+   */
+  Array.prototype.$method(&quot;random&quot;, function(min, max) {
+    min = min || 0;
+    max = max || this.length-1;
+    return this[ Math.randint(min, max) ];
+  });
+  
+<span id='global-Array-method-pickup'>  /**
+</span>   * @method pickup
+   * 配列からランダムで1つ取り出した要素を返します。
+   *
+   * {@link #random}、{@link #lot} と同じです。
+   * @inheritdoc #random
+   */
+  Array.prototype.$method(&quot;pickup&quot;, function(min, max) {
+    min = min || 0;
+    max = max || this.length-1;
+    return this[ Math.randint(min, max) ];
+  });
+  
+<span id='global-Array-method-lot'>  /**
+</span>   * @method lot
+   * 配列からランダムで1つ取り出した要素を返します。
+   *
+   * {@link #random}、{@link #pickup} と同じです。
+   * @inheritdoc #random
+   */
+  Array.prototype.$method(&quot;lot&quot;, function(min, max) {
+    min = min || 0;
+    max = max || this.length-1;
+    return this[ Math.randint(min, max) ];
+  });
+  
+<span id='global-Array-method-uniq'>  /**
+</span>   * @method uniq
+   * 要素の重複を取り除いた配列を生成して返します。
+   *
+   * 自分自身は破壊されません。
+   *
+   * ### Example
+   *     arr = [1, 2, 3, 4, 3, 2];
+   *     arr.uniq(); // =&gt; [1, 2, 3, 4]
+   *
+   * @param {Number} [deep] ※未使用
+   * @return {Object} 新しい配列
+   */
+  Array.prototype.$method(&quot;uniq&quot;, function(deep) {
+    return this.filter(function(value, index, self) {
+      return self.indexOf(value) === index;
+    });
+  });
+  
+
+<span id='global-Array-method-flatten'>  /**
+</span>   * @method flatten
+   * 自身を再帰的に平滑化した配列を生成して返します。
+   *
+   * level を指定しなければ深さの際限なく完全に平滑化します。
+   *
+   * ### Example
+   *     arr = [1, 2, [3, [4, 5]]];
+   *     arr.flatten();  // =&gt; [1, 2, 3, 4, 5]
+   *     arr.flatten(1); // =&gt; [1, 2, 3, [4, 5]]
+   *
+   * @param {Number} [level=0]  平滑化の再帰の深さ
+   * @return {Object} 平滑化した配列
+   */
+  Array.prototype.$method(&quot;flatten&quot;, function(level) {
+    var arr = null;
+
+    if (level) {
+      arr = this;
+      for (var i=0; i&lt;level; ++i) {
+        arr = Array.prototype.concat.apply([], arr);
+      }
+    }
+    else {
+      // 完全フラット
+      arr = this.reduce(function (previousValue, curentValue) {
+        return Array.isArray(curentValue) ?
+          previousValue.concat(curentValue.flatten()) : previousValue.concat(curentValue);
+      }, []);
+    }
+
+    return arr;
+  });
+
+<span id='global-Array-method-clone'>  /**
+</span>   * @method clone
+   * 自身のコピーを生成して返します。
+   *
+   * ### Example
+   *     arr1 = [1, 2, [3, 4]];
+   *     arr2 = arr1.clone();      // =&gt; [1, 2, [3, 4]]
+   *     arr1[2] === arr2[2];      // =&gt; true
+   *     arr1[2][0] = 9;
+   *     arr2;                     // =&gt; [1, 2, [9, 4]]
+   *     arr1 = [1, 2, [3, 4]];
+   *     arr2 = arr1.clone(true);  // =&gt; [1, 2, [3, 4]]
+   *     arr1[2] === arr2[2];      // =&gt; false
+   *     arr1[2][0] = 9;
+   *     arr2;                     // =&gt; [1, 2, [3, 4]]
+   *
+   * @param {Boolean} [deep=false] 配列のネストをたどって複製するかどうか
+   * @return {Object} 新しい配列
+   */
+  Array.prototype.$method(&quot;clone&quot;, function(deep) {
+    if (deep === true) {
+      var a = Array(this.length);
+      for (var i=0,len=this.length; i&lt;len; ++i) {
+        a[i] = (this[i].clone) ? this[i].clone(deep) : this[i];
+      }
+      return a;
+    }
+    else {
+      return Array.prototype.slice.apply(this);
+    }
+  });
+
+
+<span id='global-Array-method-clear'>  /**
+</span>   * @method clear
+   * @chainable
+   * 自身を空の配列にします。
+   *
+   * ### Example
+   *     arr = [1, 2, [3, 4]];
+   *     arr.clear(); // =&gt; []
+   */
+  Array.prototype.$method(&quot;clear&quot;, function() {
+    this.length = 0;
+    return this;
+  });
+  
+<span id='global-Array-method-fill'>  /**
+</span>   * @method fill
+   * @chainable
+   * 自身の一部の要素を特定の値で埋めます。
+   *
+   * ### Example
+   *     arr = [1, 2, 3, 4, 5];
+   *     arr.fill(&quot;x&quot;);       // =&gt; [&quot;x&quot;, &quot;x&quot;, &quot;x&quot;, &quot;x&quot;, &quot;x&quot;]
+   *     arr.fill(&quot;x&quot;, 2, 4); // =&gt; [1, 2, &quot;x&quot;, &quot;x&quot;, 5]
+   *
+   * @param {Object} value 埋める値
+   * @param {Number} [start=0] 値を埋める最初のインデックス
+   * @param {Number} [end=自身の配列の長さ] 値を埋める最後のインデックス+1
+   */
+  Array.prototype.$method(&quot;fill&quot;, function(value, start, end) {
+    start = start || 0;
+    end   = end   || (this.length);
+    
+    for (var i=start; i&lt;end; ++i) {
+      this[i] = value;
+    }
+    
+    return this;
+  });
+  
+
+<span id='global-Array-method-range'>  /**
+</span>   * @method range
+   * @chainable
+   * 自身を等差数列（一定間隔の整数値の列）とします。
+   *
+   * - 引数が1つの場合、0～end（end含まず）の整数の配列です。  
+   * - 引数が2つの場合、start～end（end含まず）の整数の配列です。  
+   * - 引数が3つの場合、start～end（end含まず）かつ start + n * step (nは整数)を満たす整数の配列です。
+   *
+   * ### Example
+   *     arr = [];
+   *     arr.range(4);        // =&gt; [0, 1, 2, 3]
+   *     arr.range(2, 5);     // =&gt; [2, 3, 4]
+   *     arr.range(2, 14, 5); // =&gt; [2, 7, 12]
+   *     arr.range(2, -3);    // =&gt; [2, 1, 0, -1, -2]
+   *
+   * @param {Number} start 最初の値（デフォルトは 0）
+   * @param {Number} end 最後の値（省略不可）
+   * @param {Number} [step=1または-1] 間隔
+   */
+  Array.prototype.$method(&quot;range&quot;, function(start, end, step) {
+    this.clear();
+    
+    if (arguments.length == 1) {
+      for (var i=0; i&lt;start; ++i) this[i] = i;
+    }
+    else if (start &lt; end) {
+      step = step || 1;
+      if (step &gt; 0) {
+        for (var i=start, index=0; i&lt;end; i+=step, ++index) {
+          this[index] = i;
+        }
+      }
+    }
+    else {
+      step = step || -1;
+      if (step &lt; 0) {
+        for (var i=start, index=0; i&gt;end; i+=step, ++index) {
+          this[index] = i;
+        }
+      }
+    }
+    
+    return this;
+  });
+  
+<span id='global-Array-method-shuffle'>  /**
+</span>   * @method shuffle
+   * @chainable
+   * 自身の要素をランダムにシャッフルします。
+   *
+   * ### Example
+   *     arr = [1, 2, 3, 4, 5];
+   *     arr.shuffle(); // =&gt; [5, 1, 4, 2, 3] など
+   */
+  Array.prototype.$method(&quot;shuffle&quot;, function() {
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      var j = Math.randint(0, len-1);
+      
+      if (i != j) {
+        this.swap(i, j);
+      }
+    }
+    
+    return this;
+  });
+
+<span id='global-Array-method-sum'>  /**
+</span>   * @method sum
+   * 要素の合計値を返します。
+   *
+   * 要素に数値以外が含まれる場合の挙動は不定です。
+   *
+   * ### Example
+   *     arr = [1, 2, 3, 4, 5, 6];
+   *     arr.sum(); // =&gt; 21
+   *
+   * @return {Number} 合計
+   */
+  Array.prototype.$method(&quot;sum&quot;, function() {
+    var sum = 0;
+    for (var i=0,len=this.length; i&lt;len; ++i) {
+      sum += this[i];
+    }
+    return sum;
+  });
+
+<span id='global-Array-method-average'>  /**
+</span>   * @method average
+   * 要素の平均値を返します。
+   *
+   * 要素に数値以外が含まれる場合の挙動は不定です。
+   *
+   * ### Example
+   *     arr = [1, 2, 3, 4, 5, 6]
+   *     arr.average(); // =&gt; 3.5
+   *
+   * @return {Number} 平均値
+   */
+  Array.prototype.$method(&quot;average&quot;, function() {
+    var sum = 0;
+    var len = this.length;
+    for (var i=0; i&lt;len; ++i) {
+      sum += this[i];
+    }
+    return sum/len;
+  });
+
+<span id='global-Array-method-each'>  /**
+</span>   * @method each
+   * @chainable
+   * 要素を順番に渡しながら関数を繰り返し実行します。
+   *
+   * メソッドチェーンに対応していますが、このメソッドによって自分自身は変化しません。
+   *
+   * ###Reference
+   * - [Array.prototype.forEach() - JavaScript | MDN](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach)
+   *
+   * ### Example
+   *     arr = [1, 2, 3];
+   *     arr.each( function(elm) {
+   *       console.log(elm * elm)
+   *     });
+   *     // =&gt; 1
+   *     //    4
+   *     //    9
+   *
+   * @param {Function} callback 各要素に対して実行するコールバック関数
+   * @param {Object} [self=this] callback 内で this として参照される値
+   */
+  Array.prototype.$method(&quot;each&quot;, function() {
+    this.forEach.apply(this, arguments);
+    return this;
+  });
+
+  
+<span id='global-Array-method-toULElement'>  /**
+</span>   * @method toULElement
+   * ULElement に変換します（未実装）
+   */
+  Array.prototype.$method(&quot;toULElement&quot;, function(){
+      // TODO: 
+  });
+
+<span id='global-Array-method-toOLElement'>  /**
+</span>   * @method toOLElement
+   * OLElement に変換します（未実装）
+   */
+  Array.prototype.$method(&quot;toOLElement&quot;, function(){
+      // TODO:
+  });
+
+  
+<span id='global-Array-static-method-range'>  /**
+</span>   * @method range
+   * @static
+   * インスタンスメソッドの {@link #range} と同じです。
+   *
+   * ### Example
+   *     Array.range(2, 14, 5); // =&gt; [2, 7, 12]
+   */
+  Array.$method(&quot;range&quot;, function(start, end, step) {
+    return Array.prototype.range.apply([], arguments);
+  });
+
+
+<span id='global-Array-static-method-of'>  /**
+</span>   * @method of
+   * @static
+   * ES6 準拠の of 関数です。可変長引数をとって Array オブジェクトにして返します。
+   *
+   * ### Example
+   *     Array.of();        // =&gt; []
+   *     Array.of(1, 2, 3); // =&gt; [1, 2, 3]
+   *
+   * @param {Object} elementN 生成する配列の要素
+   * @return {Array} 生成した配列
+   */
+  Array.$method(&quot;of&quot;, function() {
+    return Array.prototype.slice.call(arguments);
+  });
+
+<span id='global-Array-static-method-from'>  /**
+</span>   * @method from
+   * @static
+   * ES6 準拠の from 関数です。array-like オブジェクトかiterable オブジェクトから新しい配列を生成します。
+   *
+   * array-like オブジェクトとは、length プロパティを持ち、数字の添字でアクセス可能なオブジェクトのことです。
+   * 通常の配列のほか、String、arguments、NodeList なども array-like オブジェクトです。
+   *
+   * iterable オブジェクトとは、Symbol.iterator プロパティを持つオブジェクトのことです。
+   * 通常の配列のほか、String、arguments、NodeList なども iterable オブジェクトです。
+   *
+   * ### Example
+   *     Array.from([1, 2, 3], function(elm){ return elm * elm} ); // =&gt; [1, 4, 9]
+   *     Array.from(&quot;foo&quot;);                                        // =&gt; [&quot;f&quot;, &quot;o&quot;, &quot;o&quot;]
+   *     Array.from( document.querySelectorAll(&quot;span&quot;))            // =&gt; [Element, Element, Element,...]
+   *
+   * @param {Object} arrayLike 配列に変換する array-like オブジェクト
+   * @param {Function} [callback] arrayLike のすべての要素に対して実行するマップ関数
+   * @param {Object} [context] callback 内で this として参照される値
+   * @return {Array} 生成した配列
+   */
+  Array.$method(&quot;from&quot;, function(arrayLike, callback, context) {
+    if (!Object(arrayLike).length) return [];
+
+    var result = [];
+    if (Symbol &amp;&amp; Symbol.iterator &amp;&amp; arrayLike[Symbol.iterator]) {
+        var iterator = arrayLike[Symbol.iterator]();
+        while (true) {
+            var iteratorResult = iterator.next();
+            if (iteratorResult.done) break;
+
+            var value = typeof callback === &#39;function&#39; ? callback.bind(context || this)(iteratorResult.value) : iteratorResult.value;
+            result.push(value);
+        }
+        return result;
+    }
+
+    for (var i = 0, len = arrayLike.length; i &lt; len; i++) {
+        result.push(arrayLike[i]);
+    }
+    return result.map(typeof callback == &#39;function&#39; ? callback : function(item) {
+      return item;
+    }, context);
+  });
+  
+<span id='global-Array-method-most'>  /**
+</span>   * @method most
+   * 指定した関数の返り値が最小となる要素と最大となる要素をまとめて返します。
+   *
+   * 空の配列に対して実行すると {max: Infinity, min: -Infinity} を返します。
+   *
+   * ### Example
+   *     [5,1,4,1,9,2,-10].most(); // =&gt; {max:9, min: -10}
+   *
+   *     points = [ {x:0, y:0}, {x:640, y:960}, {x:-80, y:100} ];
+   *     points.most(function(e){return e.x;}).min; // =&gt; [x:-80, y:100]
+   *     points.most(function(e){return e.y;}).max; // =&gt; [x:640, y:960]
+   *
+   * @param {Function} [callback] 各要素に対して実行するコールバック関数
+   * @param {Object} [self=this] 関数内で this として参照される値。デフォルトは自分自身。
+   * @return {Object} max と min をキーに持つオブジェクト
+   * @return {Object} return.min 関数の返り値が最小となる要素
+   * @return {Object} return.max 関数の返り値が最大となる要素
+   */
+  Array.prototype.$method(&quot;most&quot;, function(func, self) {
+    if(this.length &lt; 1){
+      return {
+        max: -Infinity,
+        min: Infinity,
+      };
+    }
+    if(func){
+      var maxValue = -Infinity;
+      var minValue = Infinity;
+      var maxIndex = 0;
+      var minIndex = 0;
+      
+      if(typeof self === &#39;undefined&#39;){self = this;}
+      
+      for (var i = 0, len = this.length; i &lt; len; ++i) {
+        var v = func.call(self, this[i], i, this);
+        if(maxValue &lt; v){
+          maxValue = v;
+          maxIndex = i;
+        }
+        if(minValue &gt; v){
+          minValue = v;
+          minIndex = i;
+        }
+      }
+      return {
+        max: this[maxIndex],
+        min: this[minIndex],
+      };
+    }
+    else{
+      var max = -Infinity;
+      var min = Infinity;
+      for (var i = 0, len = this.length;i &lt; len; ++i) {
+        if(max&lt;this[i]){max=this[i];}
+        if(min&gt;this[i]){min=this[i];}
+      }
+      return {
+        max: max,
+        min: min,
+      };
+    }
+    
+  });  
+
+})();
+</pre>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+phina.namespace(function() {
+
+<span id='phina-game-ManagerScene'>  /**
+</span>   * @class phina.game.ManagerScene
+   * @extends phina.app.Scene
+   */
+  phina.define(&#39;phina.game.ManagerScene&#39;, {
+    superClass: &#39;phina.app.Scene&#39;,
+<span id='phina-game-ManagerScene-method-constructor'>    /**
+</span>     * @constructor
+     */
+    init: function(params) {
+      this.superInit();
+
+      this.setScenes(params.scenes);
+
+      this.on(&quot;enter&quot;, function() {
+        this.gotoScene(params.startLabel || 0);
+      }.bind(this));
+
+      this.on(&quot;resume&quot;, this.onnext.bind(this));
+
+      this.commonArguments = {};
+    },
+
+
+<span id='phina-game-ManagerScene-method-setScenes'>    /**
+</span>     * scenes をセット
+     */
+    setScenes: function(scenes) {
+      this.scenes = scenes;
+      this.sceneIndex = 0;
+
+      return this;
+    },
+
+
+    replaceScene: function(label, args) {
+      var index = (typeof label == &#39;string&#39;) ? this.labelToIndex(label) : label||0;
+
+      var data = this.scenes[index];
+
+      if (!data) {
+        console.error(&#39;phina.js error: `{0}` に対応するシーンがありません.&#39;.format(label));
+      }
+
+      var klass = phina.using(data.className);
+      if (typeof klass !== &#39;function&#39;) {
+        klass = phina.using(&#39;phina.game.&#39; + data.className);
+      }
+
+      var initArguments = {}.$extend(data.arguments, args);
+      var scene = klass.call(null, initArguments);
+      if (!scene.nextLabel) {
+          scene.nextLabel = data.nextLabel;
+      }
+      if (!scene.nextArguments) {
+          scene.nextArguments = data.nextArguments;
+      }
+      this.app.replaceScene(scene);
+
+      this.sceneIndex = index;
+
+      return this;
+    },
+
+
+<span id='phina-game-ManagerScene-method-gotoScene'>    /**
+</span>     * index(or label) のシーンへ飛ぶ
+     */
+    gotoScene: function(label, args) {
+      var index = (typeof label == &#39;string&#39;) ? this.labelToIndex(label) : label||0;
+
+      var data = this.scenes[index];
+
+      if (!data) {
+        console.error(&#39;phina.js error: `{0}` に対応するシーンがありません.&#39;.format(label));
+      }
+
+      var klass = phina.using(data.className);
+      if (typeof klass !== &#39;function&#39;) {
+        klass = phina.using(&#39;phina.game.&#39; + data.className);
+      }
+
+      var initArguments = {}.$extend(data.arguments, args);
+      var scene = klass.call(null, initArguments);
+      if (!scene.nextLabel) {
+          scene.nextLabel = data.nextLabel;
+      }
+      if (!scene.nextArguments) {
+          scene.nextArguments = data.nextArguments;
+      }
+      this.app.pushScene(scene);
+
+      this.sceneIndex = index;
+
+      return this;
+    },
+
+<span id='phina-game-ManagerScene-method-gotoNext'>    /**
+</span>     * 次のシーンへ飛ぶ
+     */
+    gotoNext: function(args) {
+      var data = this.scenes[this.sceneIndex];
+      var nextIndex = null;
+
+      // 次のラベルが設定されていた場合
+      if (data.nextLabel) {
+          nextIndex = this.labelToIndex(data.nextLabel);
+      }
+      // 次のシーンに遷移
+      else if (this.sceneIndex+1 &lt; this.scenes.length) {
+          nextIndex = this.sceneIndex+1;
+      }
+
+      if (nextIndex !== null) {
+          this.gotoScene(nextIndex, args);
+      }
+      else {
+          this.flare(&quot;finish&quot;);
+      }
+
+      return this;
+    },
+
+<span id='phina-game-ManagerScene-method-getCurrentIndex'>    /**
+</span>     * シーンインデックスを取得
+     */
+    getCurrentIndex: function() {
+      return this.sceneIndex;
+    },
+
+<span id='phina-game-ManagerScene-method-getCurrentLabel'>    /**
+</span>     * シーンラベルを取得
+     */
+    getCurrentLabel: function() {
+      return this.scenes[this.sceneIndex].label;
+    },
+
+<span id='phina-game-ManagerScene-method-labelToIndex'>    /**
+</span>     * ラベルからインデックスに変換
+     */
+    labelToIndex: function(label) {
+      var data = this.scenes.filter(function(data) {
+        return data.label == label;
+      })[0];
+
+      return this.scenes.indexOf(data);
+    },
+
+<span id='phina-game-ManagerScene-method-indexToLabel'>    /**
+</span>     * インデックスからラベルに変換
+     */
+    indexToLabel: function(index) {
+      return this.scenes[index].label;
+    },
+
+    onnext: function(e) {
+      var nextLabel = e.prevScene.nextLabel;
+      var nextArguments = e.prevScene.nextArguments;
+      if (nextLabel) {
+        this.gotoScene(nextLabel, nextArguments);
+      }
+      else {
+        this.gotoNext(nextArguments);
+      }
+    },
+
+  });
+
+});
+</pre>
+</body>
+</html>

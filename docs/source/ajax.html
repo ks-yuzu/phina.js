@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+phina.namespace(function() {
+
+<span id='phina-util-Ajax'>  /**
+</span>   * @class phina.util.Ajax
+   * 
+   */
+  phina.define(&#39;phina.util.Ajax&#39;, {
+    _static: {
+      defaults: {
+        type: &#39;GET&#39;,
+        contentType: &#39;application/x-www-form-urlencoded&#39;,
+        responseType: &#39;json&#39;,
+        data: null,
+        url: &#39;&#39;,
+      },
+
+      request: function(options) {
+        var data = ({}).$safe(options, this.defaults);
+
+        var xhr = new XMLHttpRequest();
+        var flow = phina.util.Flow(function(resolve) {
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+              if ([200, 201, 0].indexOf(xhr.status) !== -1) {
+                resolve(xhr.response);
+              }
+            }
+          };
+
+          xhr.open(data.type, data.url);
+          xhr.responseType = data.responseType;
+          xhr.send(null);
+        });
+
+        return flow;
+      },
+      get: function(url) {
+        return this.request({
+          type: &#39;GET&#39;,
+          url: url,
+        });
+      },
+      post: function(url) {
+        return this.request({
+          type: &#39;POST&#39;,
+          url: url,
+        });
+      },
+      put: function(url) {
+        return this.request({
+          type: &#39;PUT&#39;,
+          url: url,
+        });
+      },
+      del: function(url) {
+        return this.request({
+          type: &#39;DELETE&#39;,
+          url: url,
+        });
+      },
+    },
+  });
+
+});
+
+</pre>
+</body>
+</html>

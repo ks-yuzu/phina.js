@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+
+
+phina.namespace(function() {
+
+<span id='phina-accessory-Draggable'>  /**
+</span>   * @class phina.accessory.Draggable
+   * Draggable
+   * @extends phina.accessory.Accessory
+   */
+  phina.define(&#39;phina.accessory.Draggable&#39;, {
+    superClass: &#39;phina.accessory.Accessory&#39;,
+
+<span id='phina-accessory-Draggable-method-constructor'>    /**
+</span>     * @constructor
+     */
+    init: function(target) {
+      this.superInit(target);
+
+      this.initialPosition = phina.geom.Vector2(0, 0);
+      var self = this;
+
+      this.on(&#39;attached&#39;, function() {
+        this.target.setInteractive(true);
+
+        this._dragging = false;
+
+        this.target.on(&#39;pointstart&#39;, function(e) {
+          if (phina.accessory.Draggable._lock) return ;
+
+          this._dragging = true;
+          self.initialPosition.x = this.x;
+          self.initialPosition.y = this.y;
+          self.flare(&#39;dragstart&#39;);
+          this.flare(&#39;dragstart&#39;);
+        });
+        this.target.on(&#39;pointmove&#39;, function(e) {
+          if (!this._dragging) return ;
+
+          this.x += e.pointer.dx;
+          this.y += e.pointer.dy;
+          self.flare(&#39;drag&#39;);
+          this.flare(&#39;drag&#39;);
+        });
+
+        this.target.on(&#39;pointend&#39;, function(e) {
+          if (!this._dragging) return ;
+
+          this._dragging = false;
+          self.flare(&#39;dragend&#39;);
+          this.flare(&#39;dragend&#39;);
+        });
+      });
+    },
+
+    back: function(time, easing) {
+      if (time) {
+        var t = this.target;
+        t.setInteractive(false);
+        var tweener = phina.accessory.Tweener().attachTo(t);
+        tweener
+          .to({
+            x: this.initialPosition.x,
+            y: this.initialPosition.y,
+          }, time, easing || &#39;easeOutElastic&#39;)
+          .call(function() {
+            tweener.remove();
+
+            t.setInteractive(true);
+            this.flare(&#39;backend&#39;);
+          }, this);
+      }
+      else {
+        this.target.x = this.initialPosition.x;
+        this.target.y = this.initialPosition.y;
+        this.flare(&#39;backend&#39;);
+      }
+    },
+
+    enable: function() {
+      this._enable = true;
+    },
+
+    _static: {
+      _lock: false,
+      lock: function() {
+        this._lock = true;
+      },
+      unlock: function() {
+        this._lock = false;
+      },
+    }
+
+  });
+
+  phina.app.Element.prototype.getter(&#39;draggable&#39;, function() {
+    if (!this._draggable) {
+      this._draggable = phina.accessory.Draggable().attachTo(this);
+    }
+    return this._draggable;
+  });
+  
+});</pre>
+</body>
+</html>

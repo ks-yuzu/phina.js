@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/*
+ * date.js
+ */
+
+(function() {
+  
+<span id='global-Date'>  /**
+</span>   * @class global.Date
+   * # 拡張した Date クラス
+   * 日付を扱う Date クラスを拡張しています。
+   */
+  
+  var MONTH = [
+    &#39;January&#39;, &#39;February&#39;, &#39;March&#39;, &#39;April&#39;, &#39;May&#39;, &#39;June&#39;, &#39;July&#39;, &#39;August&#39;, &#39;September&#39;, &#39;October&#39;, &#39;November&#39;, &#39;December&#39;
+  ];
+  
+  var WEEK = [
+    &#39;Sunday&#39;, &#39;Monday&#39;, &#39;Tuesday&#39;, &#39;Wednesday&#39;, &#39;Thursday&#39;, &#39;Friday&#39;, &#39;Saturday&#39;
+  ];
+  
+<span id='global-Date-method-format'>  /**
+</span>   * @method format
+   * 指定したフォーマットに従って日付を文字列化します。
+   *
+   * &lt;table border=&quot;1&quot;&gt;
+   *   &lt;tr&gt;&lt;td&gt;変換指定文字列&lt;/td&gt;&lt;td&gt;意味&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;yyyy&lt;/td&gt;&lt;td&gt;西暦年（4桁）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;yy&lt;/td&gt;&lt;td&gt;西暦年（2桁）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;y&lt;/td&gt;&lt;td&gt;西暦年&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;MMMM&lt;/td&gt;&lt;td&gt;月（英語名）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;MMM&lt;/td&gt;&lt;td&gt;月（英語省略名）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;MM&lt;/td&gt;&lt;td&gt;月（2桁数字）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;M&lt;/td&gt;&lt;td&gt;月&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;dd&lt;/td&gt;&lt;td&gt;日（2桁）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;d&lt;/td&gt;&lt;td&gt;日&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;EEEE&lt;/td&gt;&lt;td&gt;曜日（英語名）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;EEE&lt;/td&gt;&lt;td&gt;曜日（英語省略名）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;HH&lt;/td&gt;&lt;td&gt;時（24時間表記・2桁）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;H&lt;/td&gt;&lt;td&gt;時（24時間表記）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;mm&lt;/td&gt;&lt;td&gt;分（2桁）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;m&lt;/td&gt;&lt;td&gt;分&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;ss&lt;/td&gt;&lt;td&gt;秒（2桁）&lt;/td&gt;&lt;/tr&gt;
+   *   &lt;tr&gt;&lt;td&gt;s&lt;/td&gt;&lt;td&gt;秒&lt;/td&gt;&lt;/tr&gt;
+   * &lt;/table&gt;
+   * 桁数が指定されているものは0パディングされます。
+   *
+   * ### Example
+   *     (new Date()).format(&quot;yyyy-MM-dd(EEE)&quot;); // =&gt; &quot;2016-04-05(Tue)&quot; など
+   *
+   * @param {String} pattern フォーマット文字列
+   * @return {String} フォーマット文字列に従って生成された文字列
+   */
+  Date.prototype.$method(&#39;format&#39;, function(pattern) {
+    var year    = this.getFullYear();
+    var month   = this.getMonth();
+    var date    = this.getDate();
+    var day     = this.getDay();
+    var hours   = this.getHours();
+    var minutes = this.getMinutes();
+    var seconds = this.getSeconds();
+    var millseconds = this.getMilliseconds();
+    
+    var patterns = {
+      &#39;yyyy&#39;: String(year).padding(4, &#39;0&#39;),
+      &#39;yy&#39;: year.toString().substr(2, 2),
+      &#39;y&#39;: year,
+
+      &#39;MMMM&#39;: MONTH[month],
+      &#39;MMM&#39;: MONTH[month].substr(0, 3),
+      &#39;MM&#39;: String(month+1).padding(2, &#39;0&#39;),
+      &#39;M&#39;: (month+1),
+
+      &#39;dd&#39;: String(date).padding(2, &#39;0&#39;),
+      &#39;d&#39;: date,
+
+      &#39;EEEE&#39;: WEEK[day],
+      &#39;EEE&#39;: WEEK[day].substr(0, 3),
+
+      &#39;HH&#39;: String(hours).padding(2, &#39;0&#39;),
+      &#39;H&#39;: hours,
+
+      &#39;mm&#39;: String(minutes).padding(2, &#39;0&#39;),
+      &#39;m&#39;: minutes,
+
+      &#39;ss&#39;: String(seconds).padding(2, &#39;0&#39;),
+      &#39;s&#39;: seconds,
+      
+      // // date
+      // &#39;d&#39;: String(&#39;00&#39; + date).slice(-2),
+      // &#39;D&#39;: WEEK[day].substr(0, 3),
+      // &#39;j&#39;: date,
+      // &#39;l&#39;: WEEK[day],
+      
+      // // month
+      // &#39;m&#39;: String(&#39;00&#39; + (month+1)).slice(-2),
+      // &#39;M&#39;: MONTH[month].substr(0, 3),
+      // &#39;n&#39;: (month+1),
+      // &#39;F&#39;: MONTH[month],
+      
+      // // year
+      // &#39;y&#39;: year.toString().substr(2, 2),
+      // &#39;Y&#39;: year,
+      
+      // // time
+      // &#39;G&#39;: hours,
+      // &#39;H&#39;: String(&#39;00&#39; + hours).slice(-2),
+      // &#39;i&#39;: String(&#39;00&#39; + minutes).slice(-2),
+      // &#39;s&#39;: String(&#39;00&#39; + seconds).slice(-2),
+      // &#39;S&#39;: String(&#39;000&#39; + millseconds).slice(-3),
+    };
+
+    var regstr = &#39;(&#39; + Object.keys(patterns).join(&#39;|&#39;) + &#39;)&#39;;
+    var re = new RegExp(regstr, &#39;g&#39;);
+
+    return pattern.replace(re, function(str) {
+      return patterns[str];
+    });
+  });
+
+
+<span id='global-Date-static-method-calculateAge'>  /**
+</span>   * @method calculateAge
+   * @static
+   * 指定した誕生日から、現在または指定した日付における年齢を計算します。
+   *
+   * ###Reference
+   * - [Javascriptで誕生日から現在の年齢を算出](http://qiita.com/n0bisuke/items/dd537bd4cbe9ab501ce8)
+   *
+   * ### Example
+   *     Date.calculateAge(&quot;1990-01-17&quot;); // =&gt; 26 など
+   *
+   * @param {String/Date} birthday 誕生日
+   * @param {String/Date} [when=本日] 基準の日付
+   * @return {Number} 年齢
+   */
+  Date.$method(&#39;calculateAge&#39;, function(birthday, when) {
+    // birthday
+    if (typeof birthday === &#39;string&#39;) {
+      birthday = new Date(birthday);
+    }
+    // when
+    if (!when) {
+      when = new Date();
+    }
+    else if (typeof when === &#39;string&#39;) {
+      when = new Date(when);
+    }
+
+    var bn = new Date(birthday.getTime()).setFullYear(256);
+    var wn = new Date(when.getTime()).setFullYear(256);
+    var step = (wn &lt; bn) ? 1 : 0;
+
+    return (when.getFullYear() - birthday.getFullYear()) - step;
+  });
+  
+})();
+</pre>
+</body>
+</html>

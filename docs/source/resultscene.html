@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/*
+ * ResultScene
+ */
+
+
+phina.namespace(function() {
+
+<span id='phina-game-ResultScene'>  /**
+</span>   * @class phina.game.ResultScene
+   * @extends phina.display.DisplayScene
+   */
+  phina.define(&#39;phina.game.ResultScene&#39;, {
+    superClass: &#39;phina.display.DisplayScene&#39;,
+<span id='phina-game-ResultScene-method-constructor'>    /**
+</span>     * @constructor
+     */
+    init: function(params) {
+      params = ({}).$safe(params, phina.game.ResultScene.defaults);
+      this.superInit(params);
+
+      var message = params.message.format(params);
+
+      this.backgroundColor = params.backgroundColor;
+
+      this.fromJSON({
+        children: {
+          scoreText: {
+            className: &#39;phina.display.Label&#39;,
+            arguments: {
+              text: &#39;score&#39;,
+              fill: params.fontColor,
+              stroke: null,
+              fontSize: 48,
+            },
+            x: this.gridX.span(8),
+            y: this.gridY.span(4),
+          },
+          scoreLabel: {
+            className: &#39;phina.display.Label&#39;,
+            arguments: {
+              text: params.score+&#39;&#39;,
+              fill: params.fontColor,
+              stroke: null,
+              fontSize: 72,
+            },
+            x: this.gridX.span(8),
+            y: this.gridY.span(6),
+          },
+
+          messageLabel: {
+            className: &#39;phina.display.Label&#39;,
+            arguments: {
+              text: message,
+              fill: params.fontColor,
+              stroke: null,
+              fontSize: 32,
+            },
+            x: this.gridX.center(),
+            y: this.gridY.span(9),
+          },
+
+          shareButton: {
+            className: &#39;phina.ui.Button&#39;,
+            arguments: [{
+              text: &#39;★&#39;,
+              width: 128,
+              height: 128,
+              fontColor: params.fontColor,
+              fontSize: 50,
+              cornerRadius: 64,
+              fill: &#39;rgba(240, 240, 240, 0.5)&#39;,
+              // stroke: &#39;#aaa&#39;,
+              // strokeWidth: 2,
+            }],
+            x: this.gridX.center(-3),
+            y: this.gridY.span(12),
+          },
+          playButton: {
+            className: &#39;phina.ui.Button&#39;,
+            arguments: [{
+              text: &#39;▶&#39;,
+              width: 128,
+              height: 128,
+              fontColor: params.fontColor,
+              fontSize: 50,
+              cornerRadius: 64,
+              fill: &#39;rgba(240, 240, 240, 0.5)&#39;,
+              // stroke: &#39;#aaa&#39;,
+              // strokeWidth: 2,
+            }],
+            x: this.gridX.center(3),
+            y: this.gridY.span(12),
+
+            interactive: true,
+            onpush: function() {
+              this.exit();
+            }.bind(this),
+          },
+        }
+      });
+
+      if (params.exitType === &#39;touch&#39;) {
+        this.on(&#39;pointend&#39;, function() {
+          this.exit();
+        });
+      }
+
+      this.shareButton.onclick = function() {
+        var text = &#39;Score: {0}\n{1}&#39;.format(params.score, message);
+        var url = phina.social.Twitter.createURL({
+          text: text,
+          hashtags: params.hashtags,
+          url: params.url,
+        });
+        window.open(url, &#39;share window&#39;, &#39;width=480, height=320&#39;);
+      };
+    },
+
+    _static: {
+      defaults: {
+        score: 16,
+
+        message: &#39;this is phina.js project.&#39;,
+        hashtags: &#39;phina_js,game,javascript&#39;,
+        url: phina.global.location &amp;&amp; phina.global.location.href,
+
+        fontColor: &#39;white&#39;,
+        backgroundColor: &#39;hsl(200, 80%, 64%)&#39;,
+        backgroundImage: &#39;&#39;,
+      },
+    },
+
+  });
+
+});
+</pre>
+</body>
+</html>

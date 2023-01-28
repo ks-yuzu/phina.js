@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">phina.namespace(function() {
+
+<span id='phina-social-Twitter'>  /**
+</span>   * @class phina.social.Twitter
+   * # Twitter の共有リンクを生成するクラス
+   * Twitter の共有リンクの URL を生成してくれるクラスです。
+   */
+  phina.define(&#39;phina.social.Twitter&#39;, {
+<span id='phina-social-Twitter-method-constructor'>    /**
+</span>     * @constructor
+     * 
+     * コンストラクタは存在しますがインスタンスメンバはありません。
+     */
+    init: function() {
+    },
+
+    _static: {
+<span id='phina-social-Twitter-static-property-phina'>      /**
+</span>       * @property {String} [phina.social.Twitter.baseURL = &#39;https://twitter.com/intent&#39;]
+       * Twitter の共有リンクのベースとなる URL です。
+       * 
+       * @static
+       */
+      baseURL: &#39;https://twitter.com/intent&#39;,
+
+<span id='phina-social-Twitter-static-property-phina'>      /**
+</span>       * @property {Object} phina.social.Twitter.defaults
+       * デフォルト値を格納しているオブジェクトです。{@link #phina.social.Twitter.defaults.text}, {@link #phina.social.Twitter.defaults.hashtags}, {@link #phina.social.Twitter.defaults.url} を内包しています。
+       * 
+       * @static
+       */
+      defaults: {
+        // type: &#39;tweet&#39;,
+<span id='phina-social-Twitter-static-property-phina'>        /**
+</span>         * @property {String} [phina.social.Twitter.defaults.text = &#39;Hello, World&#39;]
+         * デフォルトでツイートに含まれる文字列です。
+         * 
+         * @static
+         */
+        text: &#39;Hello, world!&#39;,
+
+        // screen_name: &#39;phi_jp&#39;,
+
+<span id='phina-social-Twitter-static-property-phina'>        /**
+</span>         * @property {String} [phina.social.Twitter.defaults.hashtags = &#39;javascript, phina_js&#39;]
+         * デフォルトでツイートに含まれるハッシュタグです。
+         * 
+         * @static
+         */
+        hashtags: &#39;javascript,phina_js&#39;,
+
+        // url: &#39;http://github.com/phi-jp/phina.js&#39;,
+
+<span id='phina-social-Twitter-static-property-phina'>        /**
+</span>         * @property {String} [phina.social.Twitter.defaults.url = phina.global.location &amp;&amp; phina.global.location.href]
+         * デフォルトでツイートに含まれる URL です。
+         * 
+         * @static
+         */
+        url: phina.global.location &amp;&amp; phina.global.location.href
+
+        // via: &#39;phi_jp&#39;,
+      },
+
+<span id='phina-social-Twitter-static-method-phina'>      /**
+</span>       * @method phina.social.Twitter.createURL
+       * Twitterの共有リンクを生成します。引数にオブジェクトを渡すことで様々なパラメーターを設定出来ます。引数のオブジェクトは {@link #phina.social.Twitter.defaults} で安全拡張されます。
+       * 
+       * ### Example
+       *     phina.social.Twitter.createURL(); // =&gt; http://twitter.com/intent/tweet?text=Hello%2C%20world!&amp;hashtags=javascript%2Cphina&amp;url={現在のURL}
+       * 
+       *     phina.social.Twitter.createURL({
+       *       text: &#39;This is text&#39;,
+       *       hashtags: &#39;hashtag1,hashtag2&#39;,
+       *       url: &#39;http://phinajs.com&#39;
+       *     }); // =&gt; http://twitter.com/intent/tweet?text=This%20is%20text&amp;hashtags=hashtag1%2Chashtag2&amp;url=http%3A%2F%2Fphinajs.com
+       * 
+       *     phina.social.Twitter.createURL({
+       *       text: &#39;This is text&#39;,
+       *       hashtags: &#39;hashtag1,hashtag2&#39;,
+       *       url: &#39;http://phinajs.com&#39;,
+       *       other: &#39;This is other&#39;//設定項目は適当に増やせる
+       *     }); // =&gt; http://twitter.com/intent/tweet?text=This%20is%20text&amp;hashtags=hashtag1%2Chashtag2&amp;url=http%3A%2F%2Fphinajs.com&amp;other=This%20is%20other
+       * 
+       *     phina.social.Twitter.createURL({
+       *       url: &#39;http://phinajs.com&#39;
+       *     }); // =&gt; http://twitter.com/intent/tweet?url=http%3A%2F%2Fphinajs.com&amp;text=Hello%2C%20world!&amp;hashtags=javascript%2Cphina
+       * 
+       * @param {Object}
+       * @return {String} Twitter の共有リンク
+       * @static
+       */
+      createURL: function(options) {
+        options = (options || {}).$safe(this.defaults);
+
+        var queries = [];
+        var euc = encodeURIComponent;
+        options.forIn(function(key, value) {
+          var str = key + &#39;=&#39; + euc(value);
+          queries.push(str);
+        });
+
+        var url = &#39;{baseURL}/{type}?{query}&#39;.format({
+          baseURL: this.baseURL,
+          // type: options.type,
+          type: &#39;tweet&#39;,
+          query: queries.join(&#39;&amp;&#39;),
+        });
+
+        return url;
+      }
+    }
+  });
+});
+</pre>
+</body>
+</html>

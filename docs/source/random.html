@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">phina.namespace(function() {
+
+<span id='phina-util-Random'>  /**
+</span>   * @class phina.util.Random
+   * # 乱数を扱うためのクラス
+   * 乱数を扱うためのメソッドやプロパティを定義しているクラスです。
+   */
+  phina.define(&#39;phina.util.Random&#39;, {
+
+<span id='phina-util-Random-property-seed'>    /**
+</span>     * @property {Number} [seed = 1]
+     * 乱数のシードです。
+     */
+    seed: 1,
+
+<span id='phina-util-Random-method-constructor'>    /**
+</span>     * @constructor
+     * コンストラクタです。引数で {@link #seed} を設定できます。
+     * 
+     * @param {Number} [seed = (Date.now()) || 1] シード
+     */
+    init: function(seed) {
+      this.seed = seed || (Date.now()) || 1;
+    },
+
+<span id='phina-util-Random-method-random'>    /**
+</span>     * @method random
+     * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @return {Number} 0~1 の乱数
+     */
+    random: function() {
+      var seed = this.seed;
+      seed = seed ^ (seed &lt;&lt; 13);
+      seed = seed ^ (seed &gt;&gt;&gt; 17);
+      seed = (seed ^ (seed &lt;&lt; 5));
+
+      this.seed = seed;
+
+      return (seed &gt;&gt;&gt; 0) / phina.util.Random.MAX;
+    },
+
+<span id='phina-util-Random-method-randint'>    /**
+</span>     * @method randint
+     * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} min 範囲の最小値
+     * @param {Number} max 範囲の最大値
+     * @return {Number} ランダムな整数値
+     */
+    randint: function(min, max) {
+      return Math.floor( this.random()*(max-min+1) ) + min;
+    },
+
+<span id='phina-util-Random-method-randfloat'>    /**
+</span>     * @method randfloat
+     * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} min 範囲の最小値
+     * @param {Number} max 範囲の最大値
+     * @return {Number} ランダムな数値
+     */
+    randfloat: function(min, max) {
+      return this.random()*(max-min)+min;
+    },
+
+<span id='phina-util-Random-method-randbool'>    /**
+</span>     * @method randbool
+     * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} [perecent = 50] 真になる百分率
+     * @return {Boolean} ランダムな真偽値
+     */
+    randbool: function(percent) {
+      return this.random() &lt; (percent === undefined ? 50 : percent) / 100;
+    },
+
+<span id='phina-util-Random-method-randarray'>    /**
+</span>     * @method randarray
+     * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
+     * 
+     * @param {Number} [len = 100] 配列の長さ
+     * @param {Number} [min = 0] 範囲の最小値
+     * @param {Number} [max = 100] 範囲の最大値
+     * @return {Number} ランダムな整数値の入った配列
+     */
+    randarray: function(len, min, max) {
+      len = len || 100;
+      min = min || 0;
+      max = max || 100;
+
+      return (len).map(function() {
+        return this.randint(min, max);
+      }, this);
+    },
+
+    _accessor: {
+      seed: {
+        get: function() { return this._seed; },
+        set: function (v) { this._seed = (v &gt;&gt;&gt; 0) || 1; },
+      },
+    },
+
+    _static: {
+<span id='phina-util-Random-static-property-MAX'>      /**
+</span>       * @property {Number} MAX
+       * 内部的に使用される定数です。
+       * 
+       * @static
+       */
+      MAX: 4294967295,
+
+<span id='phina-util-Random-static-property-seed'>      /**
+</span>       * @property {Number} [seed = (Date.now())] シード
+       * static メソッドの乱数のシードです。
+       * 
+       * @static
+       */
+      seed: (Date.now()),
+
+<span id='phina-util-Random-static-method-getSeed'>      /**
+</span>       * @method getSeed 
+       * {@link #seed} の値を取得します。
+       * 
+       * @return {Number} シード
+       * @static
+       */
+      getSeed: function() {
+        return this.seed;
+      },
+
+<span id='phina-util-Random-static-method-setSeed'>      /**
+</span>       * @method setSeed
+       * {@link #seed} の値をセットします。
+       * 
+       * @param {Number} [seed = 1] シード
+       * @static
+       * @chainable
+       */
+      setSeed: function(seed) {
+        this.seed = (seed &gt;&gt;&gt; 0) || 1;
+        return this;
+      },
+
+<span id='phina-util-Random-static-method-random'>      /**
+</span>       * @method random
+       * 0~1の乱数を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #random} と同じです。
+       * 
+       * @return {Number} 0~1 の乱数
+       * @static
+       */
+      random: function() {
+        this.seed = this.xor32(this.seed);
+        return (this.seed &gt;&gt;&gt; 0) / phina.util.Random.MAX;
+      },
+
+<span id='phina-util-Random-static-method-randint'>      /**
+</span>       * @method randint
+       * 指定された範囲内でランダムな整数値を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randint} と同じです。
+       * 
+       * @param {Number} min 範囲の最小値
+       * @param {Number} max 範囲の最大値
+       * @return {Number} ランダムな整数値
+       * @static
+       */
+      randint: function(min, max) {
+        return phina.global.Math.floor( this.random()*(max-min+1) ) + min;
+      },
+
+<span id='phina-util-Random-static-method-randfloat'>      /**
+</span>       * @method randfloat
+       * 指定された範囲内でランダムな数値を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randfloat} と同じです。
+       * 
+       * @param {Number} min 範囲の最小値
+       * @param {Number} max 範囲の最大値
+       * @return {Number} ランダムな数値
+       * @static
+       */
+      randfloat: function(min, max) {
+        return this.random()*(max-min)+min;
+      },
+
+<span id='phina-util-Random-static-method-randbool'>      /**
+</span>       * @method randbool
+       * ランダムな真偽値を返します。引数で百分率を指定できます。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randbool} と同じです。
+       * 
+       * @param {Number} [perecent = 50] 真になる百分率
+       * @return {Number} ランダムな真偽値
+       * @static
+       */
+      randbool: function(perecent) {
+        return this.randint(0, 99) &lt; (perecent || 50);
+      },
+
+<span id='phina-util-Random-static-method-randarray'>      /**
+</span>       * @method randarray
+       * 任意の範囲でランダムな整数値を格納した任意の長さの配列を返します。実行すると {@link #seed} は変わってしまいます。
+       * インスタンスメソッドの {@link #randarray} と同じです。
+       * 
+       * @param {Number} [len = 100] 配列の長さ
+       * @param {Number} [min = 0] 範囲の最小値
+       * @param {Number} [max = 100] 範囲の最大値
+       * @return {Number} ランダムな整数値の入った配列
+       * @static
+       */
+      randarray: function(len, min, max) {
+        len = len || 100;
+        min = min || 0;
+        max = max || 100;
+
+        return (len).map(function() {
+          return this.randint(min, max);
+        }, this);
+      },
+
+<span id='phina-util-Random-static-method-xor32'>      /**
+</span>       * @method xor32
+       * xorshift を用いて疑似乱数列を生成します。
+       * 
+       * @param {Number} seed
+       * @return {Number} 疑似乱数列
+       * @static
+       */
+      xor32: function(seed) {
+        seed = seed ^ (seed &lt;&lt; 13);
+        seed = seed ^ (seed &gt;&gt;&gt; 17);
+        seed = (seed ^ (seed &lt;&lt; 5));
+
+        return seed;
+      },
+
+<span id='phina-util-Random-static-method-uuid'>      /**
+</span>       * @method uuid
+       * uuid を生成して返します。
+       * 
+       * @return {String} uuid
+       * @static
+       */
+      //http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+      uuid: function() {
+        var d = new Date().getTime();
+        if(phina.global.performance &amp;&amp; typeof phina.global.performance.now === &#39;function&#39;){
+          d += performance.now(); //use high-precision timer if available
+        }
+        var uuid = &#39;xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx&#39;.replace(/[xy]/g, function(c) {
+          var r = (d + Math.random()*16)%16 | 0;
+          d = Math.floor(d/16);
+          return (c==&#39;x&#39; ? r : (r&amp;0x3|0x8)).toString(16);
+        });
+        return uuid;
+      },
+
+    },
+  });
+
+  Math.$method(&quot;randint&quot;, function(min, max) {
+    return phina.util.Random.randint(min, max);
+  });
+  Math.$method(&quot;randfloat&quot;, function(min, max) {
+    return phina.util.Random.randfloat(min, max);
+  });
+
+});
+</pre>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">phina.namespace(function() {
+
+<span id='phina-game-GameApp'>  /**
+</span>   * @class phina.game.GameApp
+   * @extends phina.display.CanvasApp
+   */
+  phina.define(&#39;phina.game.GameApp&#39;, {
+    superClass: &#39;phina.display.CanvasApp&#39;,
+
+    init: function(options) {
+
+      options = (options || {}).$safe({
+        startLabel: &#39;title&#39;,
+      });
+      this.superInit(options);
+
+      var startLabel = options.startLabel || &#39;title&#39;;
+
+      var scenes = options.scenes || [
+        {
+          className: &#39;SplashScene&#39;,
+          label: &#39;splash&#39;,
+          nextLabel: &#39;title&#39;,
+        },
+
+        {
+          className: &#39;TitleScene&#39;,
+          label: &#39;title&#39;,
+          nextLabel: &#39;main&#39;,
+        },
+        {
+          className: &#39;MainScene&#39;,
+          label: &#39;main&#39;,
+          nextLabel: &#39;result&#39;,
+        },
+        {
+          className: &#39;ResultScene&#39;,
+          label: &#39;result&#39;,
+          nextLabel: &#39;title&#39;,
+        },
+      ];
+
+      scenes = scenes.each(function(s) {
+        s.arguments = s.arguments || options;
+      });
+
+      var scene = phina.game.ManagerScene({
+        startLabel: startLabel,
+        scenes: scenes,
+      });
+
+      if (options.assets) {
+        var loadingOptions = ({}).$extend(options, {
+          exitType: &#39;&#39;,
+        });
+        var loadingClass = phina.global.LoadingScene || phina.game.LoadingScene;
+        var loading = loadingClass(loadingOptions);
+        this.replaceScene(loading);
+
+        loading.onloaded = function() {
+          this.replaceScene(scene);
+          if (options.debug) {
+            this._enableDebugger();
+          }
+        }.bind(this);
+
+      }
+      else {
+        this.replaceScene(scene);
+        if (options.debug) {
+          this._enableDebugger();
+        }
+      }
+
+      // 自動でポーズする
+      if (options.autoPause) {
+        this.on(&#39;blur&#39;, function() {
+          var pauseScene = phina.game.PauseScene();
+          this.pushScene(pauseScene);
+        });
+      }
+    },
+
+    _enableDebugger: function() {
+      if (this.gui) return ;
+
+      this.enableDatGUI(function(gui) {
+        var f = gui.addFolder(&#39;scenes&#39;);
+        var funcs = {};
+        this.rootScene.scenes.each(function(scene) {
+          funcs[scene.label] = function() {
+            this.rootScene.replaceScene(scene.label);
+            console.log(this._scenes.length);
+          }.bind(this);
+          return scene;
+        }, this);
+
+        funcs.forIn(function(key, value) {
+          f.add(funcs, key);
+        });
+        f.open();
+
+        this.gui = gui;
+      }.bind(this));
+    },
+  });
+
+});
+</pre>
+</body>
+</html>
